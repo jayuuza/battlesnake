@@ -62,10 +62,10 @@ type MoveResponse struct {
 func HandleIndex(w http.ResponseWriter, r *http.Request) {
 	response := BattlesnakeInfoResponse{
 		APIVersion: "1",
-		Author:     "",        // TODO: Your Battlesnake username
-		Color:      "#888888", // TODO: Personalize
-		Head:       "default", // TODO: Personalize
-		Tail:       "default", // TODO: Personalize
+		Author:     "snekkums",
+		Color:      "#ff6600",
+		Head:       "pixel",
+		Tail:       "pixel",
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -86,12 +86,11 @@ func HandleStart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Nothing to respond with here
-	fmt.Print("START\n")
+	fmt.Printf("START GAME %+v\n", request)
 }
 
 // HandleMove is called for each turn of each game.
 // Valid responses are "up", "down", "left", or "right".
-// TODO: Use the information in the GameRequest object to determine your next move.
 func HandleMove(w http.ResponseWriter, r *http.Request) {
 	request := GameRequest{}
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -99,19 +98,23 @@ func HandleMove(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// Choose a random direction to move in
+	move := randomMove()
+
+	fmt.Printf("MOVE: %s\n", move.Move)
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(move)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// randomMove Chooses a random direction to move in
+func randomMove() MoveResponse {
 	possibleMoves := []string{"up", "down", "left", "right"}
 	move := possibleMoves[rand.Intn(len(possibleMoves))]
 
-	response := MoveResponse{
+	return MoveResponse{
 		Move: move,
-	}
-
-	fmt.Printf("MOVE: %s\n", response.Move)
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		log.Fatal(err)
 	}
 }
 
