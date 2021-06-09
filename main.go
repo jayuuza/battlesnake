@@ -62,7 +62,7 @@ type MoveResponse struct {
 func HandleIndex(w http.ResponseWriter, r *http.Request) {
 	response := BattlesnakeInfoResponse{
 		APIVersion: "1",
-		Author:     "snekkums",
+		Author:     "jayuuza",
 		Color:      "#ff6600",
 		Head:       "pixel",
 		Tail:       "pixel",
@@ -98,13 +98,94 @@ func HandleMove(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	move := randomMove()
+	move := makeMove(request)
 
 	fmt.Printf("MOVE: %s\n", move.Move)
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(move)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+// validMoves returns moves that won't result in death for a given position
+func validMoves(pos Coord, board Board) []string {
+	var moves []string
+
+	left := Coord{
+		X: pos.X - 1,
+		Y: pos.Y,
+	}
+	if isValid(left, board) {
+		moves = append(moves, "left")
+	}
+
+ 	right := Coord{
+		X: pos.X + 1,
+		Y: pos.Y,
+	}
+	if isValid(right, board) {
+		moves = append(moves, "right")
+	}
+
+	down := Coord{
+		X: pos.X,
+		Y: pos.Y + 1,
+	}
+	if isValid(down, board) {
+		moves = append(moves, "down")
+	}
+
+	up := Coord{
+		X: pos.X,
+		Y: pos.Y - 1,
+	}
+	if isValid(up, board) {
+		moves = append(moves, "up")
+	}
+
+	return moves
+}
+
+func isValid(pos Coord, board Board) bool {
+	return !isEdge(pos, board) && !isSnake(pos, board)
+}
+
+func isEdge(pos Coord, board Board) bool {
+	return pos.X > board.Width - 1 ||  pos.Y > board.Height + 1 || pos.X < 0 || pos.Y < 0
+}
+
+func isFood(pos Coord, board Board) bool {
+	for _, coord := range board.Food {
+		if coord.Y == pos.Y && coord.X == pos.X {
+			return true
+		}
+	}
+	return false
+}
+
+func isSnake(pos Coord, board Board) bool {
+	for _, snake := range board.Snakes {
+		for _, coord := range snake.Body {
+			if coord.Y == pos.Y && coord.X == pos.X {
+				return true
+			}
+		}
+		if snake.Head.Y == pos.Y && snake.Head.X == pos.X {
+			return true
+		}
+	}
+	return false
+}
+
+func makeMove(game GameRequest) MoveResponse {
+	possibleMoves := validMoves(game.You.Head, game.Board)
+	if len(possibleMoves) == 0 {
+		return randomMove()
+	}
+
+	return MoveResponse{
+		Move: possibleMoves[rand.Intn(len(possibleMoves))],
 	}
 }
 
