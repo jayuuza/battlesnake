@@ -1,1 +1,1 @@
-# battlesnake
+# Battle Snake
