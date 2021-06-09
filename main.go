@@ -111,7 +111,6 @@ func HandleMove(w http.ResponseWriter, r *http.Request) {
 // validMoves returns moves that won't result in death for a given position
 func validMoves(pos Coord, board Board) []string {
 	var moves []string
-
 	left := Coord{
 		X: pos.X - 1,
 		Y: pos.Y,
@@ -130,7 +129,7 @@ func validMoves(pos Coord, board Board) []string {
 
 	down := Coord{
 		X: pos.X,
-		Y: pos.Y + 1,
+		Y: pos.Y - 1,
 	}
 	if isValid(down, board) {
 		moves = append(moves, "down")
@@ -138,7 +137,7 @@ func validMoves(pos Coord, board Board) []string {
 
 	up := Coord{
 		X: pos.X,
-		Y: pos.Y - 1,
+		Y: pos.Y + 1,
 	}
 	if isValid(up, board) {
 		moves = append(moves, "up")
@@ -170,9 +169,6 @@ func isSnake(pos Coord, board Board) bool {
 			if coord.Y == pos.Y && coord.X == pos.X {
 				return true
 			}
-		}
-		if snake.Head.Y == pos.Y && snake.Head.X == pos.X {
-			return true
 		}
 	}
 	return false
