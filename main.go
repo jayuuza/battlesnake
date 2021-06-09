@@ -151,7 +151,7 @@ func isValid(pos Coord, board Board) bool {
 }
 
 func isEdge(pos Coord, board Board) bool {
-	return pos.X > board.Width - 1 ||  pos.Y > board.Height + 1 || pos.X < 0 || pos.Y < 0
+	return pos.X > board.Width - 1 ||  pos.Y > board.Height - 1 || pos.X < 0 || pos.Y < 0
 }
 
 func isFood(pos Coord, board Board) bool {
